@@ -18,7 +18,10 @@ type alias City =
 
 init : (Model, Effects Action)
 init =
-  ( {cities = [ City "Düsseldorf" 0,  City "München" 0 ]  }, Effects.none)
+  ( initialModel, Effects.none)
+
+initialModel = 
+  {cities = [ City "Düsseldorf" 0,  City "München" 0 ]  }
 
 -- UPDATE
 

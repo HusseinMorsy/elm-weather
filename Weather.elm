@@ -46,4 +46,8 @@ cities model =
 
 city: City -> Html
 city city =
-  li [ ] [ text (city.name ++ " " ++ (toString city.temp) ++ "°C") ]
+  let
+    cityString = (city.name ++ " " ++ (toString city.temp) ++ "°C")
+  in
+    li [ ] [ text cityString ]
+

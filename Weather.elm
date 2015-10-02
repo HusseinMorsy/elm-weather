@@ -28,7 +28,7 @@ init =
   ( initialModel, Effects.none)
 
 initialModel = 
-  {cities = [ City "Düsseldorf" 0,  City "München" 0 ]
+  { cities = [ ]
   , name_input = ""
   }
 
@@ -51,14 +51,12 @@ update action model =
       let
         newCity = City model.name_input 0
       in
-        --( { model | name_input <- "", cities <- newCity :: model.cities }, getTemp model.name_input )
         ( model , getTemp model.name_input )
     NewTemp temp ->
       let
         convertTemp = round(Maybe.withDefault 0.0 temp)
         newCity = City model.name_input convertTemp
       in
-        -- ( { model | name_input <- convertTemp }, Effects.none )
         ({ model | name_input <- "", cities <- newCity :: model.cities }, Effects.none )
 
 -- VIEW

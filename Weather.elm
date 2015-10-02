@@ -6,6 +6,10 @@ import Effects exposing (Effects)
 import Html exposing (..)
 import Html.Attributes exposing (style, value, type')
 import Html.Events exposing (on, onClick, targetValue)
+import Http
+import Json.Decode as Json
+import Task
+import Debug
 
 -- MODEL
 
@@ -34,6 +38,7 @@ type Action =
   NoOp
   | UpdateNameField String
   | Add
+  | NewTemp (Maybe Float)
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
@@ -46,7 +51,15 @@ update action model =
       let
         newCity = City model.name_input 0
       in
-        ( { model | name_input <- "", cities <- newCity :: model.cities }, Effects.none )
+        --( { model | name_input <- "", cities <- newCity :: model.cities }, getTemp model.name_input )
+        ( model , getTemp model.name_input )
+    NewTemp temp ->
+      let
+        convertTemp = round(Maybe.withDefault 0.0 temp)
+        newCity = City model.name_input convertTemp
+      in
+        -- ( { model | name_input <- convertTemp }, Effects.none )
+        ({ model | name_input <- "", cities <- newCity :: model.cities }, Effects.none )
 
 -- VIEW
 
@@ -92,3 +105,20 @@ city city =
   in
     li [ ] [ text cityString ]
 
+-- EFFECTS
+
+getTemp : String -> Effects Action
+getTemp cityName =
+  -- Http.getString "http://api.openweathermap.org/data/2.5/weather?q=neuss&units=metric"
+  Http.get decodeData (weatherURL cityName)
+  |> Task.toMaybe
+  |> Task.map NewTemp
+  |> Effects.task
+
+weatherURL: String -> String
+weatherURL cityName =
+  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", "metric")]
+
+decodeData : Json.Decoder Float
+decodeData = 
+  Json.at [ "main", "temp"] Json.float

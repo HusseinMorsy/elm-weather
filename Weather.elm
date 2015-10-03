@@ -96,14 +96,18 @@ cities model =
         span [ ] [ ] 
 
   in
-    ul [ ] ( input :: List.map city model.cities)
+    table [ ] ( input :: List.map city model.cities)
 
 city: City -> Html
 city city =
   let
-    cityString = (city.name ++ " " ++ (toString city.temp) ++ "°C")
+    cityTemp = ((toString city.temp) ++ "°C")
   in
-    li [ ] [ text cityString ]
+    tr [ ] 
+      [ td [ ] [ text (toString city.id) ]
+      , td [ ] [ text city.name ]
+      , td [ ] [ text cityTemp ]
+      ]
 
 -- EFFECTS
 

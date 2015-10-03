@@ -45,6 +45,8 @@ type Action =
   | Add
   | NewTemp (Maybe Float)
   | Delete Id
+  | RequestUpdate City
+  | UpdateTemp Id (Maybe Float)
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
@@ -66,6 +68,16 @@ update action model =
         citiesDeleted = List.filter (\e -> e.id /= id) model.cities
       in
       ( { model | cities <- citiesDeleted }, Effects.none )
+    RequestUpdate city ->
+      ( model, getUpdatedTemp city )
+    UpdateTemp id temp ->
+      let 
+        convertTemp temp = round(Maybe.withDefault 0.0 temp)
+        changeCity = \e -> {e | temp <- if e.id == id then (convertTemp temp) else e.temp }
+        updatedCity = List.map changeCity model.cities
+      in
+        ( { model | cities <- updatedCity}, Effects.none )
+
 
 -- VIEW
 
@@ -105,6 +117,7 @@ city address city =
       [ td [ ] [ text (toString city.id) ]
       , td [ ] [ text city.name ]
       , td [ ] [ text cityTemp ]
+      , td [ ] [ button [ onClick address (RequestUpdate city)] [ text "Update" ] ]
       , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
       ]
 
@@ -116,6 +129,14 @@ getTemp cityName =
   Http.get decodeData (weatherURL cityName)
   |> Task.toMaybe
   |> Task.map NewTemp
+  |> Effects.task
+
+getUpdatedTemp : City -> Effects Action
+getUpdatedTemp city =
+  -- Http.getString "http://api.openweathermap.org/data/2.5/weather?q=neuss&units=metric"
+  Http.get decodeData (weatherURL city.name)
+  |> Task.toMaybe
+  |> Task.map (UpdateTemp city.id)
   |> Effects.task
 
 weatherURL: String -> String

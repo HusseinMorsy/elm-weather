@@ -44,6 +44,7 @@ type Action =
   | UpdateNameField String
   | Add
   | NewTemp (Maybe Float)
+  | Delete Id
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
@@ -60,6 +61,11 @@ update action model =
         newCity = City model.nextId model.nameInput convertTemp
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, Effects.none )
+    Delete id ->
+      let
+        citiesDeleted = List.filter (\e -> e.id /= id) model.cities
+      in
+      ( { model | cities <- citiesDeleted }, Effects.none )
 
 -- VIEW
 
@@ -70,7 +76,7 @@ view address model =
    [ ] 
    [ h1 [] [ text "Cities" ]
    , cityForm address model
-   , cities model
+   , cities address model
    ]
 
 cityForm : Signal.Address Action -> Model -> Html
@@ -86,12 +92,12 @@ onInput : Signal.Address a -> (String -> a) -> Attribute
 onInput address f =
   on "input" targetValue (\v -> Signal.message address (f v))
 
-cities : Model -> Html
-cities model =
-    table [ ] ( List.map city model.cities)
+cities : Signal.Address Action ->  Model -> Html
+cities address model =
+    table [ ] ( List.map (city address) model.cities)
 
-city: City -> Html
-city city =
+city: Signal.Address Action -> City -> Html
+city address city =
   let
     cityTemp = ((toString city.temp) ++ "°C")
   in
@@ -99,6 +105,7 @@ city city =
       [ td [ ] [ text (toString city.id) ]
       , td [ ] [ text city.name ]
       , td [ ] [ text cityTemp ]
+      , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
       ]
 
 -- EFFECTS

@@ -13,7 +13,7 @@ import Debug
 
 -- MODEL
 
-type alias Model = 
+type alias Model =
   { cities: List City
   , nameInput: String
   , nextId : Id
@@ -31,7 +31,7 @@ init : (Model, Effects Action)
 init =
   ( initialModel, Effects.none)
 
-initialModel = 
+initialModel =
   { cities = [ ]
   , nameInput = ""
   , nextId = 0
@@ -43,7 +43,7 @@ convertTemp temp= round(Maybe.withDefault (toFloat unknownTemp) temp)
 unknownTemp = 0
 -- UPDATE
 
-type Action = 
+type Action =
   NoOp
   | UpdateNameField String
   | Add
@@ -75,13 +75,13 @@ update action model =
     RequestUpdate city ->
       ( model, getUpdatedTemp city )
     UpdateTemp id temp ->
-      let 
+      let
         changeCity = \e -> {e | temp <- if e.id == id then (convertTemp temp) else e.temp }
         updatedCity = List.map changeCity model.cities
       in
         ( { model | cities <- updatedCity}, Effects.none )
     RequestUpdateAll ->
-      let 
+      let
         updateCities = List.map (\c -> getUpdatedTemp c) model.cities
       in
         ( model, Effects.batch updateCities)
@@ -90,9 +90,9 @@ update action model =
 
 
 view: Signal.Address Action -> Model -> Html
-view address model = 
- div 
-   [ ] 
+view address model =
+ div
+   [ ]
    [ h1 [] [ text "Cities" ]
    , cityForm address model
    , cities address model
@@ -100,7 +100,7 @@ view address model =
 
 cityForm : Signal.Address Action -> Model -> Html
 cityForm address model =
-  form 
+  form
     [ ]
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
@@ -121,7 +121,7 @@ city address city =
   let
     cityTemp = if city.temp /= unknownTemp then ((toString city.temp) ++ "°C") else "?"
   in
-    tr [ ] 
+    tr [ ]
       [ td [ ] [ text (toString city.id) ]
       , td [ ] [ text city.name ]
       , td [ ] [ text cityTemp ]
@@ -152,5 +152,5 @@ weatherURL cityName =
   Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", "metric")]
 
 decodeData : Json.Decoder Float
-decodeData = 
+decodeData =
   Json.at [ "main", "temp"] Json.float

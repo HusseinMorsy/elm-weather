@@ -108,7 +108,7 @@ view address model =
 
 cityForm : Signal.Address Action -> Model -> Html
 cityForm address model =
-  form
+  div
     [ ]
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]

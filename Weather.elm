@@ -15,13 +15,17 @@ import Debug
 
 type alias Model = 
   { cities: List City
-  , name_input: String
+  , nameInput: String
+  , nextId : Id
   }
 
 type alias City =
-  { name : String
+  { id : Id
+  , name : String
   , temp: Int
   }
+
+type alias Id = Int
 
 init : (Model, Effects Action)
 init =
@@ -29,7 +33,8 @@ init =
 
 initialModel = 
   { cities = [ ]
-  , name_input = ""
+  , nameInput = ""
+  , nextId = 0
   }
 
 -- UPDATE
@@ -46,18 +51,15 @@ update action model =
     NoOp ->
      (model, Effects.none)
     UpdateNameField input ->
-      ( { model | name_input <- input }, Effects.none )
+      ( { model | nameInput <- input }, Effects.none )
     Add ->
-      let
-        newCity = City model.name_input 0
-      in
-        ( model , getTemp model.name_input )
+      ( model , getTemp model.nameInput )
     NewTemp temp ->
       let
         convertTemp = round(Maybe.withDefault 0.0 temp)
-        newCity = City model.name_input convertTemp
+        newCity = City model.nextId model.nameInput convertTemp
       in
-        ({ model | name_input <- "", cities <- newCity :: model.cities }, Effects.none )
+        ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, Effects.none )
 
 -- VIEW
 
@@ -76,7 +78,7 @@ cityForm address model =
   form 
     [ ]
     [ label [ ] [ text "Ctiy: " ]
-    , input [ onInput address UpdateNameField, value model.name_input] [ ]
+    , input [ onInput address UpdateNameField, value model.nameInput] [ ]
     , input [ type' "button", value "Submit", onClick address Add] [ ]
     ]
 
@@ -88,8 +90,8 @@ cities : Model -> Html
 cities model =
   let 
     input = 
-      if String.length(model.name_input) > 0 then
-        li [ ] [ text model.name_input ]
+      if String.length(model.nameInput) > 0 then
+        li [ ] [ text model.nameInput ]
       else
         span [ ] [ ] 
 

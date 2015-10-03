@@ -50,6 +50,7 @@ type Action =
   | NewTemp (Maybe Float)
   | Delete Id
   | RequestUpdate City
+  | RequestUpdateAll
   | UpdateTemp Id (Maybe Float)
 
 update: Action -> Model -> (Model, Effects Action)
@@ -79,7 +80,11 @@ update action model =
         updatedCity = List.map changeCity model.cities
       in
         ( { model | cities <- updatedCity}, Effects.none )
-
+    RequestUpdateAll ->
+      let 
+        updateCities = List.map (\c -> getUpdatedTemp c) model.cities
+      in
+        ( model, Effects.batch updateCities)
 
 -- VIEW
 
@@ -100,6 +105,7 @@ cityForm address model =
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
     , input [ type' "button", value "Submit", onClick address Add] [ ]
+    , input [ type' "button", value "Update All", onClick address RequestUpdateAll ] [ ]
     ]
 
 onInput : Signal.Address a -> (String -> a) -> Attribute

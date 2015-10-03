@@ -53,8 +53,8 @@ type Action
     | UpdateNameField String
     | Add
     | Delete Id
-    | RequestUpdate City
-    | RequestUpdateAll
+    | RequestTempUpdate City
+    | RequestTempUpdateAll
     | UpdateTemp Id (Maybe Float)
 
 
@@ -79,7 +79,7 @@ update action model =
       in
       ( { model | cities <- citiesDeleted }, Effects.none )
 
-    RequestUpdate city ->
+    RequestTempUpdate city ->
       ( model, getUpdatedTemp city )
 
     UpdateTemp id temp ->
@@ -88,7 +88,7 @@ update action model =
         updatedCity = List.map changeCity model.cities
       in
         ( { model | cities <- updatedCity}, Effects.none )
-    RequestUpdateAll ->
+    RequestTempUpdateAll ->
       let
         updateCities = List.map (\c -> getUpdatedTemp c) model.cities
       in
@@ -113,7 +113,7 @@ cityForm address model =
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
     , input [ type' "button", value "Submit", onClick address Add] [ ]
-    , input [ type' "button", value "Update All", onClick address RequestUpdateAll ] [ ]
+    , input [ type' "button", value "Update All", onClick address RequestTempUpdateAll ] [ ]
     ]
 
 onInput : Signal.Address a -> (String -> a) -> Attribute
@@ -133,7 +133,7 @@ city address city =
       [ td [ ] [ text (toString city.id) ]
       , td [ ] [ text city.name ]
       , td [ ] [ text cityTemp ]
-      , td [ ] [ button [ onClick address (RequestUpdate city)] [ text "Update" ] ]
+      , td [ ] [ button [ onClick address (RequestTempUpdate city)] [ text "Update" ] ]
       , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
       ]
 

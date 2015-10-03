@@ -10,21 +10,25 @@ import Http
 import Json.Decode as Json
 import Task
 
+
 -- MODEL
 
 type alias Model =
-  { cities: List City
-  , nameInput: String
-  , nextId : Id
-  }
+    { cities: List City
+    , nameInput: String
+    , nextId : Id
+    }
+
 
 type alias City =
-  { id : Id
-  , name : String
-  , temp: Int
-  }
+    { id : Id
+    , name : String
+    , temp: Int
+    }
+
 
 type alias Id = Int
+
 
 init : (Model, Effects Action)
 init =
@@ -40,39 +44,48 @@ convertTemp : Maybe Float -> Int
 convertTemp temp= round(Maybe.withDefault (toFloat unknownTemp) temp)
 
 unknownTemp = 0
+
+
 -- UPDATE
 
-type Action =
-  NoOp
-  | UpdateNameField String
-  | Add
-  | NewTemp (Maybe Float)
-  | Delete Id
-  | RequestUpdate City
-  | RequestUpdateAll
-  | UpdateTemp Id (Maybe Float)
+type Action
+    = NoOp
+    | UpdateNameField String
+    | Add
+    | NewTemp (Maybe Float)
+    | Delete Id
+    | RequestUpdate City
+    | RequestUpdateAll
+    | UpdateTemp Id (Maybe Float)
+
 
 update: Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
     NoOp ->
-     (model, Effects.none)
+      (model, Effects.none)
+
     UpdateNameField input ->
       ( { model | nameInput <- input }, Effects.none )
+
     Add ->
       ( model , getTemp model.nameInput )
+
     NewTemp temp ->
       let
         newCity = City model.nextId model.nameInput (convertTemp temp)
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, Effects.none )
+
     Delete id ->
       let
         citiesDeleted = List.filter (\e -> e.id /= id) model.cities
       in
       ( { model | cities <- citiesDeleted }, Effects.none )
+
     RequestUpdate city ->
       ( model, getUpdatedTemp city )
+
     UpdateTemp id temp ->
       let
         changeCity = \e -> {e | temp <- if e.id == id then (convertTemp temp) else e.temp }
@@ -85,8 +98,8 @@ update action model =
       in
         ( model, Effects.batch updateCities)
 
--- VIEW
 
+-- VIEW
 
 view: Signal.Address Action -> Model -> Html
 view address model =
@@ -127,6 +140,7 @@ city address city =
       , td [ ] [ button [ onClick address (RequestUpdate city)] [ text "Update" ] ]
       , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
       ]
+
 
 -- EFFECTS
 

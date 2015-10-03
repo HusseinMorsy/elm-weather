@@ -43,7 +43,7 @@ initialModel =
 convertTemp : Maybe Float -> Int
 convertTemp temp= round(Maybe.withDefault (toFloat unknownTemp) temp)
 
-unknownTemp = 0
+unknownTemp = 999
 
 
 -- UPDATE

@@ -52,7 +52,6 @@ type Action
     = NoOp
     | UpdateNameField String
     | Add
-    | NewTemp (Maybe Float)
     | Delete Id
     | RequestUpdate City
     | RequestUpdateAll
@@ -69,13 +68,10 @@ update action model =
       ( { model | nameInput <- input }, Effects.none )
 
     Add ->
-      ( model , getTemp model.nameInput )
-
-    NewTemp temp ->
       let
-        newCity = City model.nextId model.nameInput (convertTemp temp)
+        newCity = City model.nextId model.nameInput unknownTemp
       in
-        ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, Effects.none )
+        ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, getUpdatedTemp newCity )
 
     Delete id ->
       let
@@ -131,7 +127,7 @@ cities address model =
 city: Signal.Address Action -> City -> Html
 city address city =
   let
-    cityTemp = if city.temp /= unknownTemp then ((toString city.temp) ++ "°C") else "?"
+    cityTemp = if city.temp /= unknownTemp then ((toString city.temp) ++ "°C") else "..."
   in
     tr [ ]
       [ td [ ] [ text (toString city.id) ]
@@ -143,14 +139,6 @@ city address city =
 
 
 -- EFFECTS
-
-getTemp : String -> Effects Action
-getTemp cityName =
-  -- Http.getString "http://api.openweathermap.org/data/2.5/weather?q=neuss&units=metric"
-  Http.get decodeData (weatherURL cityName)
-  |> Task.toMaybe
-  |> Task.map NewTemp
-  |> Effects.task
 
 getUpdatedTemp : City -> Effects Action
 getUpdatedTemp city =

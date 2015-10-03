@@ -9,7 +9,6 @@ import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json
 import Task
-import Debug
 
 -- MODEL
 

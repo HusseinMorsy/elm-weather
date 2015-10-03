@@ -88,15 +88,7 @@ onInput address f =
 
 cities : Model -> Html
 cities model =
-  let 
-    input = 
-      if String.length(model.nameInput) > 0 then
-        li [ ] [ text model.nameInput ]
-      else
-        span [ ] [ ] 
-
-  in
-    table [ ] ( input :: List.map city model.cities)
+    table [ ] ( List.map city model.cities)
 
 city: City -> Html
 city city =

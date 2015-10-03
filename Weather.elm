@@ -37,6 +37,10 @@ initialModel =
   , nextId = 0
   }
 
+convertTemp : Maybe Float -> Int
+convertTemp temp= round(Maybe.withDefault (toFloat unknownTemp) temp)
+
+unknownTemp = 0
 -- UPDATE
 
 type Action = 
@@ -59,8 +63,7 @@ update action model =
       ( model , getTemp model.nameInput )
     NewTemp temp ->
       let
-        convertTemp = round(Maybe.withDefault 0.0 temp)
-        newCity = City model.nextId model.nameInput convertTemp
+        newCity = City model.nextId model.nameInput (convertTemp temp)
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, Effects.none )
     Delete id ->
@@ -72,7 +75,6 @@ update action model =
       ( model, getUpdatedTemp city )
     UpdateTemp id temp ->
       let 
-        convertTemp temp = round(Maybe.withDefault 0.0 temp)
         changeCity = \e -> {e | temp <- if e.id == id then (convertTemp temp) else e.temp }
         updatedCity = List.map changeCity model.cities
       in
@@ -111,7 +113,7 @@ cities address model =
 city: Signal.Address Action -> City -> Html
 city address city =
   let
-    cityTemp = ((toString city.temp) ++ "°C")
+    cityTemp = if city.temp /= unknownTemp then ((toString city.temp) ++ "°C") else "?"
   in
     tr [ ] 
       [ td [ ] [ text (toString city.id) ]

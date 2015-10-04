@@ -50,8 +50,7 @@ initialModel =
 -- UPDATE
 
 type Action
-    = NoOp
-    | UpdateNameField String
+    = UpdateNameField String
     | Add
     | Delete Id
     | RequestTempUpdate City
@@ -62,9 +61,6 @@ type Action
 update: Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
-    NoOp ->
-      (model, Effects.none)
-
     UpdateNameField input ->
       ( { model | nameInput <- input }, Effects.none )
 

@@ -51,8 +51,8 @@ initialModel =
 
 type Action
     = UpdateNameField String
-    | Add
-    | Delete Id
+    | AddCity
+    | DeleteCity Id
     | RequestTempUpdate City
     | RequestTempUpdateAll
     | UpdateTemp Id (Maybe Float)
@@ -64,13 +64,13 @@ update action model =
     UpdateNameField input ->
       ( { model | nameInput <- input }, Effects.none )
 
-    Add ->
+    AddCity ->
       let
       newCity = City model.nextId model.nameInput Nothing Progress
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, getUpdatedTemp newCity )
 
-    Delete id ->
+    DeleteCity id ->
       let
         citiesDeleted = List.filter (\e -> e.id /= id) model.cities
       in
@@ -115,7 +115,7 @@ cityForm address model =
     [ ]
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
-    , input [ type' "button", value "Submit", onClick address Add] [ ]
+    , input [ type' "button", value "Submit", onClick address AddCity] [ ]
     , input [ type' "button", value "Update All", onClick address RequestTempUpdateAll ] [ ]
     ]
 
@@ -142,7 +142,7 @@ city address city =
       , td [ ] [ text city.name ]
       , td [ ] [ cityTemp ]
       , td [ ] [ button [ onClick address (RequestTempUpdate city)] [ text "Update" ] ]
-      , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
+      , td [ ] [ button [ onClick address (DeleteCity city.id)] [ text "delete" ] ]
       ]
 
 spinner : Html

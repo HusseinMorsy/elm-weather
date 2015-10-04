@@ -46,9 +46,6 @@ initialModel =
   , nextId = 0
   }
 
-convertTemp : Maybe Float -> Maybe Int
-convertTemp temp= Maybe.map round temp
-
 
 -- UPDATE
 
@@ -92,6 +89,7 @@ update action model =
 
     UpdateTemp id temp ->
       let
+        convertTemp temp= Maybe.map round temp
         changeCity = \e -> {e | loadingState <- Completed, temp <- if e.id == id then (convertTemp temp) else e.temp }
         updatedCity = List.map changeCity model.cities
       in

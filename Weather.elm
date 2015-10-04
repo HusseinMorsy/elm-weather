@@ -23,7 +23,7 @@ type alias Model =
 type alias City =
     { id : Id
     , name : String
-    , temp: Int
+    , temp: Maybe.Maybe Int
     , loadingState: LoadingState
     }
 
@@ -32,10 +32,8 @@ type alias Id = Int
 
 
 type LoadingState
-    = Unkknown
-    | Progress
+    = Progress
     | Completed
-
 
 
 init : (Model, Effects Action)
@@ -48,10 +46,8 @@ initialModel =
   , nextId = 0
   }
 
-convertTemp : Maybe Float -> Int
-convertTemp temp= round(Maybe.withDefault (toFloat unknownTemp) temp)
-
-unknownTemp = 999
+convertTemp : Maybe Float -> Maybe Int
+convertTemp temp= Maybe.map round temp
 
 
 -- UPDATE
@@ -77,7 +73,7 @@ update action model =
 
     Add ->
       let
-      newCity = City model.nextId model.nameInput unknownTemp Progress
+      newCity = City model.nextId model.nameInput Nothing Progress
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, getUpdatedTemp newCity )
 
@@ -139,13 +135,12 @@ cities address model =
 city: Signal.Address Action -> City -> Html
 city address city =
   let
+    tempToString = Maybe.withDefault "..." (Maybe.map toString city.temp)
     cityTemp = case city.loadingState of
-      Unkknown ->
-       text "?"
       Progress ->
         spinner
       Completed ->
-         if city.temp /= unknownTemp then text ((toString city.temp) ++ "°C") else text "..."
+         text (tempToString ++ "°C")
   in
     tr [ ]
       [ td [ ] [ text (toString city.id) ]

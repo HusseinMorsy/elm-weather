@@ -85,9 +85,10 @@ update action model =
 
     RequestTempUpdate city ->
       let
-          setProgress = List.map (\e -> { e | loadingState <- (if e.id == city.id then Progress else e.loadingState) } ) model.cities
+        changeCity = \e -> {e | loadingState  <- if e.id == city.id then Progress else e.loadingState }
+        updateCities = List.map changeCity model.cities
       in
-        ( { model | cities <- setProgress }, getUpdatedTemp city )
+        ( { model | cities <- updateCities }, getUpdatedTemp city )
 
     UpdateTemp id temp ->
       let

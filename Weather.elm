@@ -115,8 +115,8 @@ cityForm address model =
     [ ]
     [ label [ ] [ text "Ctiy: " ]
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
-    , input [ type' "button", value "Submit", onClick address AddCity] [ ]
-    , input [ type' "button", value "Update All", onClick address RequestTempUpdateAll ] [ ]
+    , input [ type' "button", value "Add city", onClick address AddCity] [ ]
+    , input [ type' "button", value "Update all", onClick address RequestTempUpdateAll ] [ ]
     ]
 
 onInput : Signal.Address a -> (String -> a) -> Attribute

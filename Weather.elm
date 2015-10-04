@@ -4,7 +4,7 @@ import String
 import Signal
 import Effects exposing (Effects)
 import Html exposing (..)
-import Html.Attributes exposing (style, value, type')
+import Html.Attributes exposing (style, value, type', src)
 import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json
@@ -24,10 +24,18 @@ type alias City =
     { id : Id
     , name : String
     , temp: Int
+    , loadingState: LoadingState
     }
 
 
 type alias Id = Int
+
+
+type LoadingState
+    = Unkknown
+    | Progress
+    | Completed
+
 
 
 init : (Model, Effects Action)
@@ -69,7 +77,7 @@ update action model =
 
     Add ->
       let
-        newCity = City model.nextId model.nameInput unknownTemp
+      newCity = City model.nextId model.nameInput unknownTemp Progress
       in
         ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, getUpdatedTemp newCity )
 
@@ -80,19 +88,23 @@ update action model =
       ( { model | cities <- citiesDeleted }, Effects.none )
 
     RequestTempUpdate city ->
-      ( model, getUpdatedTemp city )
+      let
+          setProgress = List.map (\e -> { e | loadingState <- (if e.id == city.id then Progress else e.loadingState) } ) model.cities
+      in
+        ( { model | cities <- setProgress }, getUpdatedTemp city )
 
     UpdateTemp id temp ->
       let
-        changeCity = \e -> {e | temp <- if e.id == id then (convertTemp temp) else e.temp }
+        changeCity = \e -> {e | loadingState <- Completed, temp <- if e.id == id then (convertTemp temp) else e.temp }
         updatedCity = List.map changeCity model.cities
       in
         ( { model | cities <- updatedCity}, Effects.none )
     RequestTempUpdateAll ->
       let
         updateCities = List.map (\c -> getUpdatedTemp c) model.cities
+        setProgress = List.map (\c -> { c | loadingState <- Progress }) model.cities
       in
-        ( model, Effects.batch updateCities)
+        ( { model | cities <- setProgress}, Effects.batch updateCities)
 
 
 -- VIEW
@@ -127,16 +139,25 @@ cities address model =
 city: Signal.Address Action -> City -> Html
 city address city =
   let
-    cityTemp = if city.temp /= unknownTemp then ((toString city.temp) ++ "°C") else "..."
+    cityTemp = case city.loadingState of
+      Unkknown ->
+       text "?"
+      Progress ->
+        spinner
+      Completed ->
+         if city.temp /= unknownTemp then text ((toString city.temp) ++ "°C") else text "..."
   in
     tr [ ]
       [ td [ ] [ text (toString city.id) ]
       , td [ ] [ text city.name ]
-      , td [ ] [ text cityTemp ]
+      , td [ ] [ cityTemp ]
       , td [ ] [ button [ onClick address (RequestTempUpdate city)] [ text "Update" ] ]
       , td [ ] [ button [ onClick address (Delete city.id)] [ text "delete" ] ]
       ]
 
+spinner : Html
+spinner =
+  img [src "assets/spinner.gif"] []
 
 -- EFFECTS
 

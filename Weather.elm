@@ -138,9 +138,9 @@ city address city =
          text (tempToString ++ "°C")
   in
     tr [ ]
-      [ td [ ] [ text (toString city.id) ]
-      , td [ ] [ text city.name ]
-      , td [ ] [ cityTemp ]
+      [ td [  style [("min-width", "2em")] ] [ text (toString city.id) ]
+      , td [  style [("min-width", "12em")] ] [ text city.name ]
+      , td [ style [("width", "6em")] ] [ cityTemp ]
       , td [ ] [ button [ onClick address (RequestTempUpdate city)] [ text "Update" ] ]
       , td [ ] [ button [ onClick address (DeleteCity city.id)] [ text "delete" ] ]
       ]

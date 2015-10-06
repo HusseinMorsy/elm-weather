@@ -68,7 +68,11 @@ update action model =
       let
       newCity = City model.nextId model.nameInput Nothing Progress
       in
-        ({ model | nameInput <- "", cities <- newCity :: model.cities, nextId <- model.nextId + 1 }, getUpdatedTemp newCity )
+        ({ model |
+             nameInput <- "",
+             cities <- newCity :: model.cities,
+             nextId <- model.nextId + 1 },
+           getUpdatedTemp newCity )
 
     DeleteCity id ->
       let

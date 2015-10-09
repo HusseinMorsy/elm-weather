@@ -1,0 +1,5 @@
+module Config where
+
+-- set here you API-Key you got from http://www.openweathermap.org/appid#get
+apiKey : String
+apiKey = "8cf21be8619f02dc5c853e61b75aecaa"

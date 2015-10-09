@@ -1,5 +1,7 @@
+
 module Weather where
 
+import Config
 import Signal
 import Effects exposing (Effects)
 import Html exposing (..)
@@ -165,7 +167,7 @@ getUpdatedTemp city =
 
 weatherURL: String -> String
 weatherURL cityName =
-  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", "metric")]
+  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", "metric"), ("APPID", Config.apiKey)]
 
 decodeData : Json.Decoder Float
 decodeData =

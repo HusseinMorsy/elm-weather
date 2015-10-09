@@ -175,7 +175,7 @@ getUpdatedTemp city =
 
 weatherURL: String -> String
 weatherURL cityName =
-  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", "metric"), ("APPID", Config.apiKey)]
+  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", Config.unit), ("APPID", Config.apiKey)]
 
 decodeData : Json.Decoder Float
 decodeData =

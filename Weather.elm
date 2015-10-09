@@ -58,6 +58,7 @@ type Action
     | RequestTempUpdate City
     | RequestTempUpdateAll
     | UpdateTemp Id (Maybe Float)
+    | SortByCity
 
 
 update: Action -> Model -> (Model, Effects Action)
@@ -102,6 +103,11 @@ update action model =
         setProgress = List.map (\c -> { c | loadingState <- Progress }) model.cities
       in
         ( { model | cities <- setProgress}, Effects.batch updateCities)
+    SortByCity ->
+      let
+        sortCities = List.sortBy .name model.cities
+      in
+        ( { model | cities <- sortCities }, Effects.none)
 
 
 -- VIEW
@@ -123,6 +129,7 @@ cityForm address model =
     , input [ onInput address UpdateNameField, value model.nameInput] [ ]
     , input [ type' "button", value "Add city", onClick address AddCity] [ ]
     , input [ type' "button", value "Update all", onClick address RequestTempUpdateAll ] [ ]
+    , input [ type' "button", value "Sort by city", onClick address SortByCity ] [ ]
     ]
 
 onInput : Signal.Address a -> (String -> a) -> Attribute

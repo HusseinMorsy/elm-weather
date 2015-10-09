@@ -39,6 +39,7 @@ init : (Model, Effects Action)
 init =
   ( initialModel, Effects.none)
 
+initialModel : Model
 initialModel =
   { cities = [ ]
   , nameInput = ""

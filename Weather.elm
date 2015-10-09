@@ -1,6 +1,5 @@
 module Weather where
 
-import String
 import Signal
 import Effects exposing (Effects)
 import Html exposing (..)

@@ -162,11 +162,12 @@ spinner : Html
 spinner =
   img [src "assets/spinner.gif"] []
 
+
+
 -- EFFECTS
 
 getUpdatedTemp : City -> Effects Action
 getUpdatedTemp city =
-  -- Http.getString "http://api.openweathermap.org/data/2.5/weather?q=neuss&units=metric"
   Http.get decodeData (weatherURL city.name)
   |> Task.toMaybe
   |> Task.map (UpdateTemp city.id)

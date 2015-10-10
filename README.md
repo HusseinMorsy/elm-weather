@@ -1,4 +1,4 @@
-# Consuming the OpenWeatherMapp API with a simple Elm application
+# Elm OpenWeatherMap example application
 
 This simple elm application demonstrate how to use the [OpenWeatherMap API]("http://www.openweathermap.org/api").
 

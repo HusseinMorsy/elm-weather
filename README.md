@@ -2,6 +2,8 @@
 
 This simple elm application demonstrate how to use the [OpenWeatherMap API]("http://www.openweathermap.org/api").
 
+See the [live app on Heroku](http://elm-openweathermap-example.herokuapp.com/).
+
 ![Screenshot](screenshot.png)
 
 ## Installation

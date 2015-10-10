@@ -43,11 +43,19 @@ init =
 
 initialModel : Model
 initialModel =
-  { cities = [ ]
+  { cities = initialCities
   , nameInput = ""
-  , nextId = 0
+  , nextId = List.length initialCities
   }
 
+initialCities : List City
+initialCities =
+  ["Alaska", "Berlin", "Chicago", "Düsseldorf", "Istanbul", "Madrid", "Munich", "New York"]
+    |> List.indexedMap (\i e -> City (i+1) e Nothing Completed)
+
+createCity : Id -> String -> City
+createCity id name=
+    City id name Nothing Progress
 
 -- UPDATE
 

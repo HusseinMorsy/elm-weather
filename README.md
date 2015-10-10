@@ -2,6 +2,8 @@
 
 This simple elm application demonstrate how to use the [OpenWeatherMap API]("http://www.openweathermap.org/api").
 
+![Screenshot](screenshot.png)
+
 ## Installation
 
 1. Get an API key from the [OpenWeatherMap website](http://www.openweathermap.org/appid#get)

@@ -73,49 +73,49 @@ update: Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
     UpdateNameField input ->
-      ( { model | nameInput <- input }, Effects.none )
+      ( { model | nameInput = input }, Effects.none )
 
     AddCity ->
       let
       newCity = City model.nextId model.nameInput Nothing Progress
       in
         ({ model |
-             nameInput <- "",
-             cities <- newCity :: model.cities,
-             nextId <- model.nextId + 1 },
+             nameInput = "",
+             cities = newCity :: model.cities,
+             nextId = model.nextId + 1 },
            getUpdatedTemp newCity )
 
     DeleteCity id ->
       let
         citiesDeleted = List.filter (\e -> e.id /= id) model.cities
       in
-      ( { model | cities <- citiesDeleted }, Effects.none )
+      ( { model | cities = citiesDeleted }, Effects.none )
 
     RequestTempUpdate city ->
       let
-        changeCity = \e -> {e | loadingState  <- if e.id == city.id then Progress else e.loadingState }
+        changeCity = \e -> {e | loadingState  = if e.id == city.id then Progress else e.loadingState }
         updateCities = List.map changeCity model.cities
       in
-        ( { model | cities <- updateCities }, getUpdatedTemp city )
+        ( { model | cities = updateCities }, getUpdatedTemp city )
 
     UpdateTemp id temp ->
       let
         convertTemp temp= Maybe.map round temp
-        changeCity = \e -> {e | loadingState <- Completed, temp <- if e.id == id then (convertTemp temp) else e.temp }
+        changeCity = \e -> {e | loadingState = Completed, temp = if e.id == id then (convertTemp temp) else e.temp }
         updatedCity = List.map changeCity model.cities
       in
-        ( { model | cities <- updatedCity}, Effects.none )
+        ( { model | cities = updatedCity}, Effects.none )
     RequestTempUpdateAll ->
       let
         updateCities = List.map (\c -> getUpdatedTemp c) model.cities
-        setProgress = List.map (\c -> { c | loadingState <- Progress }) model.cities
+        setProgress = List.map (\c -> { c | loadingState = Progress }) model.cities
       in
-        ( { model | cities <- setProgress}, Effects.batch updateCities)
+        ( { model | cities = setProgress}, Effects.batch updateCities)
     SortByCity ->
       let
         sortCities = List.sortBy .name model.cities
       in
-        ( { model | cities <- sortCities }, Effects.none)
+        ( { model | cities = sortCities }, Effects.none)
 
 
 -- VIEW

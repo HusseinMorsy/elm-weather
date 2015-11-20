@@ -6,6 +6,10 @@ See the [live app on Heroku](http://elm-openweathermap-example.herokuapp.com/).
 
 ![Screenshot](screenshot.png)
 
+## Requirements
+
+* Elm version 0.16.x
+
 ## Installation
 
 1. Get an API key from the [OpenWeatherMap website](http://www.openweathermap.org/appid#get)

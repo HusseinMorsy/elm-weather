@@ -45,7 +45,7 @@ initialModel : Model
 initialModel =
     { cities = initialCities
     , nameInput = ""
-    , nextId = List.length initialCities
+    , nextId = List.length initialCities + 1
     }
 
 

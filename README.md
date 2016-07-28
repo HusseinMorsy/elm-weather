@@ -8,7 +8,7 @@ See the [live app on Heroku](http://elm-openweathermap-example.herokuapp.com/).
 
 ## Requirements
 
-* Elm version 0.16.x
+* Elm version 0.17.x (see http://elm-lang.org/install)
 
 ## Installation
 
@@ -16,3 +16,5 @@ See the [live app on Heroku](http://elm-openweathermap-example.herokuapp.com/).
 2. Add your API key to config.elm
 3. Run `elm reactor` from the project directory
 4. Open `localhost:8000` from your browser and click on `Main.elm`
+
+If you get errors remove the `elm-stuff` directory.

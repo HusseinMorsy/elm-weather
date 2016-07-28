@@ -169,13 +169,13 @@ view model =
     div
         []
         [ h1 [] [ text "Cities" ]
-        , cityForm model
-        , cities model
+        , viewCityForm model
+        , viewCities model
         ]
 
 
-cityForm : Model -> Html Msg
-cityForm model =
+viewCityForm : Model -> Html Msg
+viewCityForm model =
     div
         []
         [ label [] [ text "Ctiy: " ]
@@ -186,13 +186,13 @@ cityForm model =
         ]
 
 
-cities : Model -> Html Msg
-cities model =
-    table [] (List.map city model.cities)
+viewCities : Model -> Html Msg
+viewCities model =
+    table [] (List.map viewCity model.cities)
 
 
-city : City -> Html Msg
-city city =
+viewCity : City -> Html Msg
+viewCity city =
     let
         tempToString =
             Maybe.withDefault "..." (Maybe.map toString city.temp)
@@ -200,7 +200,7 @@ city city =
         cityTemp =
             case city.loadingState of
                 Progress ->
-                    spinner
+                    viewSpinner
 
                 Completed ->
                     text (tempToString ++ "°C")
@@ -214,8 +214,8 @@ city city =
             ]
 
 
-spinner : Html Msg
-spinner =
+viewSpinner : Html Msg
+viewSpinner =
     img [ src "assets/spinner.gif" ] []
 
 

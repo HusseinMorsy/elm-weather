@@ -1,12 +1,9 @@
-
-module Weather where
+module Weather exposing (..)
 
 import Config
-import Signal
-import Effects exposing (Effects)
 import Html exposing (..)
 import Html.Attributes exposing (style, value, type', src)
-import Html.Events exposing (on, onClick, targetValue)
+import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Json
 import Task
@@ -14,9 +11,10 @@ import Task
 
 -- MODEL
 
+
 type alias Model =
-    { cities: List City
-    , nameInput: String
+    { cities : List City
+    , nameInput : String
     , nextId : Id
     }
 
@@ -24,12 +22,13 @@ type alias Model =
 type alias City =
     { id : Id
     , name : String
-    , temp: Maybe.Maybe Int
-    , loadingState: LoadingState
+    , temp : Maybe.Maybe Int
+    , loadingState : LoadingState
     }
 
 
-type alias Id = Int
+type alias Id =
+    Int
 
 
 type LoadingState
@@ -37,154 +36,203 @@ type LoadingState
     | Completed
 
 
-init : (Model, Effects Action)
+init : ( Model, Cmd Msg )
 init =
-  ( initialModel, Effects.none)
+    ( initialModel, Cmd.none )
+
 
 initialModel : Model
 initialModel =
-  { cities = initialCities
-  , nameInput = ""
-  , nextId = List.length initialCities
-  }
+    { cities = initialCities
+    , nameInput = ""
+    , nextId = List.length initialCities
+    }
+
 
 initialCities : List City
 initialCities =
-  ["Alaska", "Berlin", "Chicago", "Düsseldorf", "Istanbul", "Madrid", "Munich", "New York"]
-    |> List.indexedMap (\i e -> City (i+1) e Nothing Completed)
+    [ "Alaska", "Berlin", "Chicago", "Düsseldorf", "Istanbul", "Madrid", "Munich", "New York" ]
+        |> List.indexedMap (\i e -> City (i + 1) e Nothing Completed)
+
 
 createCity : Id -> String -> City
-createCity id name=
+createCity id name =
     City id name Nothing Progress
+
+
 
 -- UPDATE
 
-type Action
+
+type Msg
     = UpdateNameField String
     | AddCity
     | DeleteCity Id
     | RequestTempUpdate City
     | RequestTempUpdateAll
-    | UpdateTemp Id (Maybe Float)
+    | UpdateTemp Id Float
+    | UpdateTempFail Http.Error
     | SortByCity
 
 
-update: Action -> Model -> (Model, Effects Action)
-update action model =
-  case action of
-    UpdateNameField input ->
-      ( { model | nameInput = input }, Effects.none )
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        UpdateNameField input ->
+            ( { model | nameInput = input }, Cmd.none )
 
-    AddCity ->
-      let
-      newCity = City model.nextId model.nameInput Nothing Progress
-      in
-        ({ model |
-             nameInput = "",
-             cities = newCity :: model.cities,
-             nextId = model.nextId + 1 },
-           getUpdatedTemp newCity )
+        AddCity ->
+            let
+                newCity =
+                    City model.nextId model.nameInput Nothing Progress
+            in
+                ( { model
+                    | nameInput = ""
+                    , cities = newCity :: model.cities
+                    , nextId = model.nextId + 1
+                  }
+                , getUpdatedTemp newCity
+                )
 
-    DeleteCity id ->
-      let
-        citiesDeleted = List.filter (\e -> e.id /= id) model.cities
-      in
-      ( { model | cities = citiesDeleted }, Effects.none )
+        DeleteCity id ->
+            let
+                citiesDeleted =
+                    List.filter (\e -> e.id /= id) model.cities
+            in
+                ( { model | cities = citiesDeleted }, Cmd.none )
 
-    RequestTempUpdate city ->
-      let
-        changeCity = \e -> {e | loadingState  = if e.id == city.id then Progress else e.loadingState }
-        updateCities = List.map changeCity model.cities
-      in
-        ( { model | cities = updateCities }, getUpdatedTemp city )
+        RequestTempUpdate city ->
+            let
+                changeCity =
+                    \e ->
+                        { e
+                            | loadingState =
+                                if e.id == city.id then
+                                    Progress
+                                else
+                                    e.loadingState
+                        }
 
-    UpdateTemp id temp ->
-      let
-        convertTemp temp= Maybe.map round temp
-        changeCity = \e -> {e | loadingState = Completed, temp = if e.id == id then (convertTemp temp) else e.temp }
-        updatedCity = List.map changeCity model.cities
-      in
-        ( { model | cities = updatedCity}, Effects.none )
-    RequestTempUpdateAll ->
-      let
-        updateCities = List.map (\c -> getUpdatedTemp c) model.cities
-        setProgress = List.map (\c -> { c | loadingState = Progress }) model.cities
-      in
-        ( { model | cities = setProgress}, Effects.batch updateCities)
-    SortByCity ->
-      let
-        sortCities = List.sortBy .name model.cities
-      in
-        ( { model | cities = sortCities }, Effects.none)
+                updateCities =
+                    List.map changeCity model.cities
+            in
+                ( { model | cities = updateCities }, getUpdatedTemp city )
+
+        UpdateTemp id temp ->
+            let
+                convertTemp temp =
+                    Maybe.Just (round temp)
+
+                changeCity =
+                    \e ->
+                        { e
+                            | loadingState = Completed
+                            , temp =
+                                if e.id == id then
+                                    (convertTemp temp)
+                                else
+                                    e.temp
+                        }
+
+                updatedCity =
+                    List.map changeCity model.cities
+            in
+                ( { model | cities = updatedCity }, Cmd.none )
+
+        UpdateTempFail _ ->
+            ( model, Cmd.none )
+
+        RequestTempUpdateAll ->
+            let
+                updateCities =
+                    List.map (\c -> getUpdatedTemp c) model.cities
+
+                setProgress =
+                    List.map (\c -> { c | loadingState = Progress }) model.cities
+            in
+                ( { model | cities = setProgress }, Cmd.batch updateCities )
+
+        SortByCity ->
+            let
+                sortCities =
+                    List.sortBy .name model.cities
+            in
+                ( { model | cities = sortCities }, Cmd.none )
+
 
 
 -- VIEW
 
-view: Signal.Address Action -> Model -> Html
-view address model =
- div
-   [ ]
-   [ h1 [] [ text "Cities" ]
-   , cityForm address model
-   , cities address model
-   ]
 
-cityForm : Signal.Address Action -> Model -> Html
-cityForm address model =
-  div
-    [ ]
-    [ label [ ] [ text "Ctiy: " ]
-    , input [ onInput address UpdateNameField, value model.nameInput] [ ]
-    , input [ type' "button", value "Add city", onClick address AddCity] [ ]
-    , input [ type' "button", value "Update all", onClick address RequestTempUpdateAll ] [ ]
-    , input [ type' "button", value "Sort by city", onClick address SortByCity ] [ ]
-    ]
+view : Model -> Html Msg
+view model =
+    div
+        []
+        [ h1 [] [ text "Cities" ]
+        , cityForm model
+        , cities model
+        ]
 
-onInput : Signal.Address a -> (String -> a) -> Attribute
-onInput address f =
-  on "input" targetValue (\v -> Signal.message address (f v))
 
-cities : Signal.Address Action ->  Model -> Html
-cities address model =
-    table [ ] ( List.map (city address) model.cities)
+cityForm : Model -> Html Msg
+cityForm model =
+    div
+        []
+        [ label [] [ text "Ctiy: " ]
+        , input [ onInput UpdateNameField, value model.nameInput ] []
+        , input [ type' "button", value "Add city", onClick AddCity ] []
+        , input [ type' "button", value "Update all", onClick RequestTempUpdateAll ] []
+        , input [ type' "button", value "Sort by city", onClick SortByCity ] []
+        ]
 
-city: Signal.Address Action -> City -> Html
-city address city =
-  let
-    tempToString = Maybe.withDefault "..." (Maybe.map toString city.temp)
-    cityTemp = case city.loadingState of
-      Progress ->
-        spinner
-      Completed ->
-         text (tempToString ++ "°C")
-  in
-    tr [ ]
-      [ td [  style [("min-width", "2em")] ] [ text (toString city.id) ]
-      , td [  style [("min-width", "12em")] ] [ text city.name ]
-      , td [ style [("width", "6em")] ] [ cityTemp ]
-      , td [ ] [ button [ onClick address (RequestTempUpdate city)] [ text "Update" ] ]
-      , td [ ] [ button [ onClick address (DeleteCity city.id)] [ text "delete" ] ]
-      ]
 
-spinner : Html
+cities : Model -> Html Msg
+cities model =
+    table [] (List.map city model.cities)
+
+
+city : City -> Html Msg
+city city =
+    let
+        tempToString =
+            Maybe.withDefault "..." (Maybe.map toString city.temp)
+
+        cityTemp =
+            case city.loadingState of
+                Progress ->
+                    spinner
+
+                Completed ->
+                    text (tempToString ++ "°C")
+    in
+        tr []
+            [ td [ style [ ( "min-width", "2em" ) ] ] [ text (toString city.id) ]
+            , td [ style [ ( "min-width", "12em" ) ] ] [ text city.name ]
+            , td [ style [ ( "width", "6em" ) ] ] [ cityTemp ]
+            , td [] [ button [ onClick (RequestTempUpdate city) ] [ text "Update" ] ]
+            , td [] [ button [ onClick (DeleteCity city.id) ] [ text "delete" ] ]
+            ]
+
+
+spinner : Html Msg
 spinner =
-  img [src "assets/spinner.gif"] []
+    img [ src "assets/spinner.gif" ] []
 
 
 
 -- EFFECTS
 
-getUpdatedTemp : City -> Effects Action
-getUpdatedTemp city =
-  Http.get decodeData (weatherURL city.name)
-  |> Task.toMaybe
-  |> Task.map (UpdateTemp city.id)
-  |> Effects.task
 
-weatherURL: String -> String
+getUpdatedTemp : City -> Cmd Msg
+getUpdatedTemp city =
+    Task.perform UpdateTempFail (UpdateTemp city.id) (Http.get decodeData (weatherURL city.name))
+
+
+weatherURL : String -> String
 weatherURL cityName =
-  Http.url "http://api.openweathermap.org/data/2.5/weather" [ ("q", cityName), ("units", Config.unit), ("APPID", Config.apiKey)]
+    Http.url "http://api.openweathermap.org/data/2.5/weather" [ ( "q", cityName ), ( "units", Config.unit ), ( "APPID", Config.apiKey ) ]
+
 
 decodeData : Json.Decoder Float
 decodeData =
-  Json.at [ "main", "temp"] Json.float
+    Json.at [ "main", "temp" ] Json.float

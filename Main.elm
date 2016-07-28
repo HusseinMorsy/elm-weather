@@ -1,20 +1,23 @@
-import StartApp
+module Main exposing (..)
+
+import Html.App as App
 import Weather exposing (init, view, update)
-import Signal
-import Task
-import Effects
 
-app = 
-  StartApp.start
-    { init = init
-    , view = view
-    , update = update
-    , inputs = []
-  }
 
-main = 
-  app.html
+main : Program Never
+main =
+    App.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
-port tasks : Signal (Task.Task Effects.Never ())
-port tasks =
-    app.tasks
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Weather.Model -> Sub Weather.Msg
+subscriptions model =
+    Sub.none

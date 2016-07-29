@@ -7,6 +7,7 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode as Json
 import Task
+import String
 
 
 -- MODEL
@@ -88,7 +89,11 @@ update msg model =
             in
                 ( { model
                     | nameInput = ""
-                    , cities = model.cities ++ [ newCity ]
+                    , cities =
+                        if String.isEmpty model.nameInput then
+                            model.cities
+                        else
+                            model.cities ++ [ newCity ]
                     , nextId = model.nextId + 1
                   }
                 , getUpdatedTemp newCity

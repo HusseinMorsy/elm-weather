@@ -39,7 +39,7 @@ type LoadingState
 
 init : ( Model, Cmd Msg )
 init =
-    ( initialModel, Cmd.none )
+    ( initialModel, updateAllCmd initialModel )
 
 
 initialModel : Model
@@ -53,7 +53,12 @@ initialModel =
 initialCities : List City
 initialCities =
     [ "Alaska", "Berlin", "Chicago", "Düsseldorf", "Istanbul", "Madrid", "Munich", "New York" ]
-        |> List.indexedMap (\i e -> City (i + 1) e Nothing Completed)
+        |> List.indexedMap (\i e -> City (i + 1) e Nothing Progress)
+
+
+updateAllCmd : Model -> Cmd Msg
+updateAllCmd model =
+    Cmd.batch (List.map (\c -> getUpdatedTemp c) model.cities)
 
 
 createCity : Id -> String -> City
@@ -153,13 +158,10 @@ update msg model =
 
         RequestTempUpdateAll ->
             let
-                updateCities =
-                    List.map (\c -> getUpdatedTemp c) model.cities
-
                 setProgress =
                     List.map (\c -> { c | loadingState = Progress }) model.cities
             in
-                ( { model | cities = setProgress }, Cmd.batch updateCities )
+                ( { model | cities = setProgress }, updateAllCmd model )
 
         SortByCity ->
             let

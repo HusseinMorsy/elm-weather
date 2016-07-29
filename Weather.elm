@@ -246,7 +246,8 @@ viewSpinner =
 
 getUpdatedTemp : City -> Cmd Msg
 getUpdatedTemp city =
-    Task.perform UpdateTempFail (UpdateTemp city.id) (Http.get decodeData (weatherURL city.name))
+    Http.get decodeData (weatherURL city.name)
+        |> Task.perform UpdateTempFail (UpdateTemp city.id)
 
 
 weatherURL : String -> String

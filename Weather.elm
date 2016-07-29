@@ -88,7 +88,7 @@ update msg model =
             in
                 ( { model
                     | nameInput = ""
-                    , cities = newCity :: model.cities
+                    , cities = model.cities ++ [ newCity ]
                     , nextId = model.nextId + 1
                   }
                 , getUpdatedTemp newCity

@@ -3,7 +3,7 @@ module Weather exposing (..)
 import Config
 import Html exposing (..)
 import Html.Attributes exposing (style, value, type', src)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onInput, on, keyCode)
 import Http
 import Json.Decode as Json
 import Task
@@ -66,7 +66,8 @@ createCity id name =
 
 
 type Msg
-    = UpdateNameField String
+    = NoOp
+    | UpdateNameField String
     | AddCity
     | DeleteCity Id
     | RequestTempUpdate City
@@ -79,6 +80,9 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         UpdateNameField input ->
             ( { model | nameInput = input }, Cmd.none )
 
@@ -184,11 +188,23 @@ viewCityForm model =
     div
         []
         [ label [] [ text "Ctiy: " ]
-        , input [ onInput UpdateNameField, value model.nameInput ] []
+        , input [ onInput UpdateNameField, value model.nameInput, onEnter AddCity ] []
         , input [ type' "button", value "Add city", onClick AddCity ] []
         , input [ type' "button", value "Update all", onClick RequestTempUpdateAll ] []
         , input [ type' "button", value "Sort by city", onClick SortByCity ] []
         ]
+
+
+onEnter : Msg -> Attribute Msg
+onEnter msg =
+    let
+        tagger code =
+            if code == 13 then
+                msg
+            else
+                NoOp
+    in
+        on "keydown" (Json.map tagger keyCode)
 
 
 viewCities : Model -> Html Msg

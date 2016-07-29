@@ -10,14 +10,5 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         }
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Weather.Model -> Sub Weather.Msg
-subscriptions model =
-    Sub.none

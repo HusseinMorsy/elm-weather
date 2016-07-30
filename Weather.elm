@@ -58,7 +58,7 @@ initialCities =
 
 updateAllCmd : Model -> Cmd Msg
 updateAllCmd model =
-    Cmd.batch (List.map (\c -> getUpdatedTemp c) model.cities)
+    Cmd.batch (List.map getUpdatedTemp model.cities)
 
 
 createCity : Id -> String -> City

@@ -28,6 +28,10 @@ tests =
                 assertEqual
                     ({ model | nameInput = "test" } ! [])
                     (update (Weather.UpdateNameField "test") model)
+            , test "AddCity with empty nameInput" <|
+                assertEqual
+                    (model ! [])
+                    (update (Weather.AddCity) model)
             ]
 
 

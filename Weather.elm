@@ -96,17 +96,16 @@ update msg model =
                 newCity =
                     City model.nextId model.nameInput Nothing Progress
             in
-                ( { model
-                    | nameInput = ""
-                    , cities =
-                        if String.isEmpty model.nameInput then
-                            model.cities
-                        else
-                            model.cities ++ [ newCity ]
-                    , nextId = model.nextId + 1
-                  }
-                , getUpdatedTemp newCity
-                )
+                if String.isEmpty model.nameInput then
+                    (model ! [])
+                else
+                    ( { model
+                        | nameInput = ""
+                        , cities = model.cities ++ [ newCity ]
+                        , nextId = model.nextId + 1
+                      }
+                    , getUpdatedTemp newCity
+                    )
 
         DeleteCity id ->
             let

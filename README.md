@@ -18,3 +18,10 @@ See the [live app on Heroku](http://elm-openweathermap-example.herokuapp.com/).
 4. Open `localhost:8000` from your browser and click on `Main.elm`
 
 If you get errors remove the `elm-stuff` directory.
+
+
+## Run tests
+
+1. `cd test`
+2. `elm-make Update.elm --output test.js`
+3. `node test.js`

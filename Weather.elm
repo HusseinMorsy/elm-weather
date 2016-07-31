@@ -1,4 +1,4 @@
-module Weather exposing (init, view, update)
+module Weather exposing (..)
 
 import Config
 import Html exposing (..)
